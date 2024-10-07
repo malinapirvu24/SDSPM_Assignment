@@ -50,9 +50,15 @@ m = l;  % Second image coordinate := cos(theta)sin(phi)
 
 %% Your Imaging Algorithm should come hereafter...
 
-% Dirty image:
+%Dirty image:
 
-imsize = 30; 
+imsize = 80
+normalized_poslocal = zeros(p,3);
+
+for index = 1:p
+    normalized_poslocal(index, :) = poslocal(index, :) / norm(poslocal(index, :)); 
+end
+
 
 x = linspace(-1,1,imsize);
 
@@ -60,7 +66,7 @@ x = linspace(-1,1,imsize);
 PZ = sqrt(1 - PX.^2 - PY.^2);
 
 
-p_vectors = zeros(3,imsize.^2);     % list the p-vectors
+p_vectors = zeros(3,imsize.^2);     %list the p-vectors
 for counter = 1:imsize.^2
         p_vectors(:,counter) = [PX(counter) PY(counter) PZ(counter)];
 
@@ -68,34 +74,38 @@ end
 
 
 
-I_D_hat = zeros(imsize .^ 2, 1);   % initialize variables
+I_D_hat = zeros(imsize .^ 2, 1);   %initialize variables
 pixel_counter = 1;
 
 
-for pixel = p_vectors           % scan over all pixels
-    if (imag(pixel(3)) == 0)    % if within bounds, compute
+for pixel = p_vectors           %scan over all pixels
+    if (imag(pixel(3)) == 0)    %if within bounds, do calc
+        
         for ix = 1:p
-            for iy = 1:p
            
-                  I_D_hat(pixel_counter) =  I_D_hat(pixel_counter) + Rh(ix,iy) .* exp(1i .* ((poslocal(ix,:) - poslocal(iy,:))) * pixel);
+                                                                %  Rh(ix,:) *  
+              I_D_hat(pixel_counter) =  I_D_hat(pixel_counter)   +    sum( exp(1i .*    (poslocal(ix,:) - poslocal(:,:))  * pixel     ) );
 
-            end
+         
         end
+        
+       
+       
     
 
     else
-    I_D_hat(pixel_counter) = 0;      % if not in bounds, set to 0
+    I_D_hat(pixel_counter) = 0;      %if not in bounds, set to 0
     
     end
-    pixel_counter = pixel_counter + 1;    % go to next pixel
+    pixel_counter = pixel_counter + 1;    %go to next pixel
 end
 disp('Done!')
 
-I_D_hat = reshape(I_D_hat, imsize, imsize)
+I_D_hat = reshape(I_D_hat, imsize, imsize);
 %%
 
 
-imshow(real(I_D_hat) ./ max(max(I_D_hat)))   % normalize to properly look at output image
+imshow(real(I_D_hat) ./ max(max(I_D_hat)))   %normalize to properly look at output image
 
 
 

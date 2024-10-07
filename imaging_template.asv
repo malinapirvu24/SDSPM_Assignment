@@ -23,8 +23,7 @@ c = 299792458; % speed of light
 p = size(Rh,1);% number of receiving elements
 lambda = c / freq; % wavelength at the observation frequency
 
-% define a distance matrix of all baselines (=vectors between pairs of
-% antennas) - > v matrix -
+% define a distance matrix of all baselines (=vectors between pairs of antennas)
 dist = sqrt(  (meshgrid(poslocal(:,1)) - meshgrid(poslocal(:,1)).').^2 ...
             + (meshgrid(poslocal(:,2)) - meshgrid(poslocal(:,2)).').^2);
 D = max(dist(:)); % Maximum Baseline
@@ -51,16 +50,61 @@ m = l;  % Second image coordinate := cos(theta)sin(phi)
 
 %% Your Imaging Algorithm should come hereafter...
 
+%Dirty image:
+
+imsize = 30
+
+for index = 1:p
+    normalized_poslocal(index, :) = poslocal(index, :) / norm(poslocal(index, :)) 
+end
+
+
+x = linspace(-1,1,imsize);
+
+[PX, PY] = meshgrid(x,x);   % all combinations of p-coords (l,m,n) vectors
+PZ = sqrt(1 - PX.^2 - PY.^2);
+
+
+p_vectors = zeros(3,imsize.^2);     %list the p-vectors
+for counter = 1:imsize.^2
+        p_vectors(:,counter) = [PX(counter) PY(counter) PZ(counter)];
+
+end
 
 
 
+I_D_hat = zeros(imsize .^ 2, 1);   %initialize variables
+pixel_counter = 1;
 
 
+for pixel = p_vectors           %scan over all pixels
+    if (imag(pixel(3)) == 0)    %if within bounds, do calc
+        
+        for ix = 1:p
+            %for iy = 1:p
+           
+                  I_D_hat(pixel_counter) =  I_D_hat(pixel_counter)   +      Rh(ix,:) .*    exp(1i .*    (poslocal(ix,:) - poslocal(:,:))  * pixel      );
+
+            %end
+        end
+        
+       
+       
+    
+
+    else
+    I_D_hat(pixel_counter) = 0;      %if not in bounds, set to 0
+    
+    end
+    pixel_counter = pixel_counter + 1;    %go to next pixel
+end
+disp('Done!')
+
+I_D_hat = reshape(I_D_hat, imsize, imsize);
+%%
 
 
-
-
-
+imshow(real(I_D_hat) ./ max(max(I_D_hat)))   %normalize to properly look at output image
 
 
 
