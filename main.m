@@ -10,10 +10,10 @@ initialization();
 %% Dirty image and beam - basic algorithm
 %[I_D, B] = dirty_image_basic(imsize); 
 load dirty_image.mat
-display_image(I_D)
-title("Basic algorithm")
+%display_image(I_D)
+%title("Dirty image - default algorithm")
 display_image(B)
-title("Basic algorithm")
+title("Dirty beam - default algorithm")
 
 %% MVDR algorithm
 %[I_mvdr, A_mvdr] = MVDR(imsize); 
@@ -28,9 +28,9 @@ display_image(I_aar);
 title("Dirty image - AAR algorithm")
 
 %% LSI algorithm
-I_lsi = LSI(imsize, I_mvdr, A_mvdr);
+%I_lsi = LSI(imsize, I_mvdr, A_mvdr);
 load lsi_image.mat  % mvdr
 display_image(I_lsi);
-title("Optimal image - LSI algorithm")
+title("Refined MVDR Image - LSI algorithm")
 
 
